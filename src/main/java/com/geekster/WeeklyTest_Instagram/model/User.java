@@ -1,10 +1,13 @@
 package com.geekster.WeeklyTest_Instagram.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -14,20 +17,17 @@ import lombok.NoArgsConstructor;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long userId;
     private String firstName;
     private String lastName;
-    private Integer age;
+    private String instagramName;
+    private LocalDate DOB;
     private String email;
     private String phoneNumber;
     private String password;
+    private String bio;
 
-    public User(String firstName, String lastName, Integer age, String email, String phoneNumber, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-    }
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private boolean blueTick; // will not be sent through dto
+
 }

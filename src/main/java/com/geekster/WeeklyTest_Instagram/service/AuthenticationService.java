@@ -19,4 +19,20 @@ public class AuthenticationService {
             return ar.findByUser(user);
     }
 
+    public boolean authenticate(String email, String token) {
+        if(token==null && email==null){
+            return false;
+        }
+        AuthenticationToken authToken = ar.findFirstByToken(token);
+        if(authToken==null){
+            return false;
+        }
+        String expectedEmail = authToken.getUser().getEmail();
+        return expectedEmail.equals(email);
+    }
+
+    public void deleteToken(String token) {
+        AuthenticationToken token1 = ar.findFirstByToken(token);
+        ar.deleteById(token1.getTokenId());
+    }
 }

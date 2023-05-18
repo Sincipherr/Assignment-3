@@ -18,9 +18,12 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer postId;
     private LocalDate createdDate;
-    private LocalDate updatedDate;
     private String postData;
+    private String caption;
+    private String location;
+    private Integer postLikes;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_user_id")
     private User user;
 }

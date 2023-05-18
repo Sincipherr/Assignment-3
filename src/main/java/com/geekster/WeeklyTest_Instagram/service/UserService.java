@@ -2,7 +2,6 @@ package com.geekster.WeeklyTest_Instagram.service;
 
 import com.geekster.WeeklyTest_Instagram.Repository.IUserRepo;
 import com.geekster.WeeklyTest_Instagram.dto.SignInInput;
-import com.geekster.WeeklyTest_Instagram.dto.SignUpInput;
 import com.geekster.WeeklyTest_Instagram.model.AuthenticationToken;
 import com.geekster.WeeklyTest_Instagram.model.User;
 import jakarta.transaction.Transactional;
@@ -22,24 +21,31 @@ public class UserService {
     @Autowired
     AuthenticationService as;
 
-    public String signup(SignUpInput signupdto) {
-        User user=ur.findFirstByEmail(signupdto.getUserEmail());
+    @Autowired
+    FollowingService fings;
+
+    @Autowired
+    FollowerService fs;
+
+    public String signup(User signupdto) {
+        User user=ur.findFirstByEmail(signupdto.getEmail());
         if(user!=null){
             throw new IllegalStateException("User already exist..Sign in instead..!");
         }
         String encryptedpassword=null;
         try {
-            encryptedpassword=encryptedpassword(signupdto.getUserPassword());
+            encryptedpassword=encryptedpassword(signupdto.getPassword());
         }catch (Exception e){
             e.printStackTrace();
         }
-        user=new User(signupdto.getUserFirstName(),signupdto.getUserLastName(),
-                signupdto.getUserAge(),signupdto.getUserEmail(),
-                signupdto.getUserPhoneNumber(),encryptedpassword);
-        ur.save(user);
-
-        AuthenticationToken token=new AuthenticationToken(user);
-        as.savetoken(token);
+//        user=new User(signupdto.getFirstName(),signupdto.getLastName(),
+//                signupdto.getAge(),signupdto.getEmail(),
+//                signupdto.getPhoneNumber(),encryptedpassword);
+        signupdto.setPassword(encryptedpassword);
+        ur.save(signupdto);
+//not saving tokenhere
+//        AuthenticationToken token=new AuthenticationToken(user);
+//        as.savetoken(token);
         return "User registered successfully";
     }
 
@@ -66,6 +72,9 @@ public class UserService {
         if(!isvalid){
             throw new IllegalStateException("signup instead..!");
         }
+        AuthenticationToken token=new AuthenticationToken(user);
+        //generating token and save it
+        as.savetoken(token);
         AuthenticationToken auth=as.gettoken(user);
         return "User signed in successfully.."+auth.getToken()+" is generated..!";
     }
@@ -75,15 +84,33 @@ public class UserService {
         ur.updateuser(id,email);
         return "User details updated successfully...";
     }
+
+    @Transactional
+    public String followuser(Long myid, Long oid) {
+        if(myid==oid){
+            return "Are you out of your mind...!";
+        }
+        User myuser= ur.findByUserId(myid);
+        User otheruser=ur.findByUserId(oid);
+
+        if(myuser!=null && otheruser!=null){
+            fings.savefollowing(myuser,otheruser);
+            fs.saveFollower(otheruser,myuser);
+            return "Followed successfully";
+        }else{
+            return "User are invalid...!";
+        }
+    }
+
+    public String updatebluetick(Long id,boolean blue) {
+        User user=ur.findByUserId(id);
+        if(user!=null){
+            user.setBlueTick(blue);
+            ur.save(user);
+            return "Blue tick update";
+        }else{
+            return "User doesnt exist..";
+        }
+    }
 }
-//    public String updateEmployee(Long employeeId, Employee employee) {
-//        Optional<Employee> list = employeeRepo.findById(employeeId);
-//        employee.setEmployeeId(employeeId);
-//
-//        if(list.isEmpty()){
-//            return "Employee with employeeId "+ employeeId + " not found";
-//        }else{
-//            employeeRepo.save(employee);
-//            return "Employee with employeeId "+ employeeId + " updated successfully";
-//        }
-//}
+

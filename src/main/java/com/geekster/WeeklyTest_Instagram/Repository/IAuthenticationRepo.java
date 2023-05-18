@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IAuthenticationRepo extends CrudRepository<AuthenticationToken,Long> {
     AuthenticationToken findByUser(User user);
+
+    AuthenticationToken findFirstByToken(String token);
 }
