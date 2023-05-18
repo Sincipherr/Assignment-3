@@ -1,5 +1,5 @@
-# Assignment-3
-Assignment
+# Stock-Market
+Stock market management
 
 ## Resource used
 
